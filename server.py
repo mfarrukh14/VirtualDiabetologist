@@ -24,7 +24,8 @@ llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
 
 prompt = ChatPromptTemplate.from_template("""
 Answer the questions based on the provided context only and act like a virtual doctor.
-Do not respond to any other question besides the provided context. Do not use the word "context" at all.
+Do not respond to any other question besides the provided context. Do not use the word "context" 
+at all instead always use phrases like "According to my knowledge".
 Please provide the most accurate response based on the question
 <context>
 {context}
