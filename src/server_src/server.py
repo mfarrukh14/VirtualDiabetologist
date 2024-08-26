@@ -24,8 +24,8 @@ llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
 
 prompt = ChatPromptTemplate.from_template("""
 Answer the questions based on the provided context only and act like a virtual doctor.
-Do not respond to any other question besides the provided context. Do not use the word "context" 
-at all instead always use phrases like "According to my knowledge". If a user asks a question outside the
+Do not respond to any other question besides the provided context. Do not use the word "context" or "provided text" or "given text"
+at all instead always use phrases like "According to my knowledge" or "I think" etc.Always remain within the scope of the context, if a user asks a question outside the
 scope of context simply reply "I'm sorry I have no knowledge about that".
 Please provide the most accurate response based on the question
 <context>
@@ -35,7 +35,7 @@ Questions:{input}
 """)
 
 def vector_embedding():
-    persist_directory = "C://Users//hp//Desktop//MyArchive//Virtual_Diabetalogist//src//server_src//chroma_db"
+    persist_directory = "C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//src//server_src//chroma_db"
 
     if os.path.exists(persist_directory):
         vectors = Chroma(collection_name="local-rag", persist_directory=persist_directory, embedding_function=OllamaEmbeddings(model="nomic-embed-text"))
@@ -44,7 +44,7 @@ def vector_embedding():
 
     embeddings = OllamaEmbeddings(model="nomic-embed-text", show_progress=True)
     
-    file_path = "C://Users//hp//Desktop//MyArchive//Virtual_Diabetalogist//dataset//data2.pdf"
+    file_path = "C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//dataset//f_dataset.pdf"
     loader = UnstructuredPDFLoader(file_path)
     
     if not os.path.exists(file_path):
