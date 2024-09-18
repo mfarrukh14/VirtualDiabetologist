@@ -1,0 +1,26 @@
+.main {
+    position: relative; /* For positioning the pseudo-element */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 300px;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
+    margin: 0; /* Reset margin */
+    padding: 0; /* Reset padding */
+    background-image: url('../../assets/bg_signin.jpg');
+    background-size: cover; /* Ensures the background image covers the entire div */
+    background-position: center; /* Centers the background image */
+    background-repeat: no-repeat;
+    overflow: hidden; /* Ensures content doesn't overflow the div */
+}
+
+
+.sign-in-main{
+    display: flex;
+}
+
+.logo-div{
+    display: flex;
+}

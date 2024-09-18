@@ -1,0 +1,58 @@
+.transparent-header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center; /* Changed from 'justify' to 'center' */
+    padding: 1rem 2rem;
+    z-index: 3;
+    box-sizing: border-box; 
+    overflow: hidden;
+}
+
+.logo-container {
+    position: relative;  /* Container for logo and glow */
+    display: inline-block; /* Ensure the glow stays with the logo */
+}
+
+.transparent-header img {
+    width: 50px;
+    height: 50px;
+    transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.transparent-header img:hover {
+    filter: brightness(2.5) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    transform: scale(1.1);
+}
+
+.after-login {
+    display: flex;
+    align-items: center; /* Center items vertically within the container */
+}
+
+.hd-btn {
+    margin-right: 10px;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, rgb(45, 40, 42), rgba(168, 168, 168, 0.4)); /* Red gradient background */
+    border: none;
+    font-weight: bold;
+    font-family: sans-serif;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.hd-btn::before {
+    opacity: 0.9; /* Increase opacity on hover */
+}
+
+.hd-btn:hover {
+    transform: scale(1.05); /* Slight scale effect on hover */
+    color: rgba(255, 255, 255, 1); /* Full opacity text on hover */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Subtle shadow on hover */
+}

@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain.chains import create_retrieval_chain
@@ -16,7 +16,7 @@ import time
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app) 
 
 groq_api_key = os.getenv('GROQ_API')
 
@@ -107,7 +107,6 @@ def ask():
         response_time = time.process_time() - start
         return jsonify({
             'response': response['answer'],
-            'response_time': response_time
         })
     
     return jsonify({'error': 'Invalid input'}), 400

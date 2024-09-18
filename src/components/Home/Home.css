@@ -1,0 +1,91 @@
+.home-container {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+/* Button Styles */
+.gradient-button {
+    background: linear-gradient(135deg, rgba(185, 70, 238, 0.785), rgba(255, 100, 100, 0.8)); /* Red gradient background */
+    border: none;
+    border-radius: 25px;
+    color: rgba(255, 255, 255, 0.9); /* Slightly transparent white text */
+    font-size: 22px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    position: relative; 
+    font-family: sans-serif;
+    font-weight: bold;
+  }
+  
+  /* Gradient Shadow Effect */
+  .gradient-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 0, 0, 0.5), rgba(255, 100, 100, 0.3));
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: -1; /* Position behind the button */
+    filter: blur(10px);
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0.6;
+  }
+  
+  .gradient-button:hover::before {
+    opacity: 0.9; /* Increase opacity on hover */
+  }
+  
+  .gradient-button:hover {
+    transform: scale(1.05); /* Slight scale effect on hover */
+    color: rgba(255, 255, 255, 1); /* Full opacity text on hover */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Subtle shadow on hover */
+  }
+  
+
+  .background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark filter */
+  }
+  
+  .content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    z-index: 2;
+  }
+  
+  .quote {
+    font-size: 2.8rem;
+    font-weight: bold;
+    margin-bottom: 5rem;
+    font-family: sans-serif;
+    opacity: 0.8;
+    background: linear-gradient(135deg, #ff00ff, #00ffff, #ffcc00, #ff0000); /* AI-style gradient colors */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; /* Make text color transparent to show gradient */
+    background-clip: text;
+  }
+  
+  
