@@ -1,5 +1,6 @@
 .transparent-header {
     position: absolute;
+    background: transparent;
     top: 0;
     width: 100%;
     display: flex;
@@ -10,6 +11,36 @@
     z-index: 3;
     box-sizing: border-box; 
     overflow: hidden;
+}
+
+.main-hdr-btn{
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    margin-left: -500px;
+}
+
+.main-hdr-btn button{
+    background-color: transparent;
+    border: none;
+    font-weight: bold;
+    font-family: sans-serif;
+    color: rgba(220, 220, 220, 0.605);
+}
+
+.main-hdr-btn button:hover{
+    transform: scale(1.2);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    color: whitesmoke;
+}
+
+.logo-btn{
+    background-color: transparent;
+    border: none;
+}
+.logo-btn:hover{
+    background-color: transparent;
+    border: none;
 }
 
 .logo-container {

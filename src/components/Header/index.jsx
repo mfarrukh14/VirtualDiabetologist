@@ -9,8 +9,23 @@ function Header() {
     return (
         <div className="transparent-header">
             <div className="logo-container">
-                <img src="./logo.svg" alt="Logo" />
-                <div className="logo-glow"></div> 
+                <Link to={'/'}>
+                    <button className='logo-btn'>
+                        <img src="./logo.svg" alt="Logo" />
+                    </button>
+                </Link>
+                <div className="logo-glow"></div>
+            </div>
+            <div className='main-hdr-btn'>
+                <div className='srvc-btn'>
+                    <button>Our services</button>
+                </div>
+                <div className='abt-btn'>
+                    <button>About Us</button>
+                </div>
+                <div className='contact-btn'>
+                    <button>Contact Us</button>
+                </div>
             </div>
             {isSignedIn ? (
                 <div className='after-login'>

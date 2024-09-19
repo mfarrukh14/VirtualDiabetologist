@@ -32,8 +32,8 @@ export default function Chatbot() {
 
     return (
         <>
-            <Header />
             <div className='chatbot-container'>
+            <Header />
                 <div className="App">
                     <h1>👋🏻Welcome to the Chatroom</h1>
                     <div className="response">
@@ -46,7 +46,7 @@ export default function Chatbot() {
                                 id="prompt"
                                 value={prompt}
                                 onChange={handlePromptChange}
-                                placeholder='Enter Your Question'
+                                placeholder='Enter a prompt here'
                             />
                         </div>
                         <button type="submit">Submit</button>
