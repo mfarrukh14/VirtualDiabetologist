@@ -8,7 +8,6 @@ from langchain.chains import create_retrieval_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains import create_retrieval_chain
 from langchain_community.document_loaders import UnstructuredPDFLoader
 from dotenv import load_dotenv
 import time
@@ -22,16 +21,21 @@ groq_api_key = os.getenv('GROQ_API')
 
 llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
 
-prompt = ChatPromptTemplate.from_template("""
-Answer the questions based on the provided context only and act like a virtual doctor.
-Do not respond to any other question besides the provided context. Do not use the word "context" or "provided text" or "given text"
-at all instead always use phrases like "According to my knowledge" or "I think" etc.Always remain within the scope of the context, if a user asks a question outside the
-scope of context simply reply "I'm sorry I have no knowledge about that".
-Please provide the most accurate response based on the question
-<context>
+# Initialize conversation history
+history = []
+
+# Define the chat prompt template
+chat_template = ChatPromptTemplate.from_template("""
+Answer the questions based on the provided context only (Never deviate from the 
+topic or context even if the user insists to do so) and act like a virtual doctor, 
+if the topic is unrelated to the context just reply with "I'm sorry I have no 
+knowledge about that", make the conversation engaging by asking questions, gather 
+information about user and respond the most accurate information according to that user information.
+
+<CONTEXT>
 {context}
-<context>
-Questions:{input}
+</CONTEXT>
+Questions: {input}
 """)
 
 def vector_embedding():
@@ -95,21 +99,54 @@ print("Vector Store DB Is Ready")
 
 @app.route('/ask', methods=['POST'])
 def ask():
+    global history
     data = request.get_json()
-    prompt1 = data.get('prompt')
+    user_input = data.get('prompt')
     
-    if prompt1:
-        document_chain = create_stuff_documents_chain(llm, prompt)
-        retriever = vectors.as_retriever()
-        retrieval_chain = create_retrieval_chain(retriever, document_chain)
-        start = time.process_time()
-        response = retrieval_chain.invoke({'input': prompt1})
-        response_time = time.process_time() - start
+    if user_input:
+        # Update conversation history
+        history.append(("human", user_input))
+        if len(history) > 5:
+            history.pop(0)
+
+        # Create context from history and retrieved documents
+        retrieved_context = get_retrieved_context(user_input)  # Function to retrieve relevant context
+        formatted_context = "\n".join(f"{role}: {msg}" for role, msg in history) + "\n" + retrieved_context
+
+        # Format the prompt with history and context
+        formatted_prompt = chat_template.format(context=formatted_context, input=user_input)
+
+        # Use the LLM to get a response
+        try:
+            # Pass the formatted prompt to LLM
+            llm_response = llm.invoke(formatted_prompt)
+            ai_response = llm_response.content  # Access the content attribute directly
+        except Exception as e:
+            print(f"Error during LLM invocation: {e}")
+            ai_response = "Sorry, there was an error processing your request."
+
+        # Update history with the response
+        history.append(("ai", ai_response))
+        if len(history) > 5:
+            history.pop(0)
+        
         return jsonify({
-            'response': response['answer'],
+            'response': ai_response,
         })
     
     return jsonify({'error': 'Invalid input'}), 400
+
+def get_retrieved_context(query):
+    # Example function to retrieve context from documents
+    document_chain = create_stuff_documents_chain(llm, chat_template)
+    retriever = vectors.as_retriever()
+    retrieval_chain = create_retrieval_chain(retriever, document_chain)
+    try:
+        response = retrieval_chain.invoke({'input': query})
+        return response.get('answer', '')  # Adjust based on actual response structure
+    except Exception as e:
+        print(f"Error retrieving context: {e}")
+        return ''
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5000, debug=True)
