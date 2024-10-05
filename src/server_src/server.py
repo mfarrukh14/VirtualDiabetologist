@@ -4,6 +4,7 @@ import os
 from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import OllamaEmbeddings
+from langchain_community.llms import Ollama
 from langchain.chains import create_retrieval_chain
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -20,6 +21,7 @@ CORS(app)
 groq_api_key = os.getenv('GROQ_API')
 
 llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
+#llm = Ollama(model="llama3:latest")
 
 # Initialize conversation history and user data context
 history = []

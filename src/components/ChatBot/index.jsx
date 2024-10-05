@@ -14,6 +14,7 @@ export default function Chatbot() {
         glucoseLevels: '',
         hb1ac: ''
     });
+    const [isLoading, setIsLoading] = useState(false); // New loading state
     const { isLoaded, user } = useUser();
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
@@ -28,7 +29,6 @@ export default function Chatbot() {
     };
 
     const handleFormSubmit = async () => {
-        // Update the chatbot's context with formData values (non-compulsory fields)
         const res = await fetch('http://127.0.0.1:5000/update-context', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -42,6 +42,8 @@ export default function Chatbot() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true); // Set loading to true when submitting
+
         const res = await fetch('http://127.0.0.1:5000/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -49,6 +51,7 @@ export default function Chatbot() {
         });
 
         const data = await res.json();
+        setIsLoading(false); // Set loading to false when response is received
 
         if (res.ok) {
             setChatHistory((prevHistory) => [...prevHistory, { prompt, response: data.response }]);
@@ -95,8 +98,12 @@ export default function Chatbot() {
                     <button type="button" className="form-btn" onClick={toggleModal}>
                         📜
                     </button>
-                    <button type="submit" className="arrow-btn">
-                        ➤
+                    <button type="submit" className="arrow-btn" disabled={isLoading}>
+                        {isLoading ? (
+                            <div className="loading-spinner"></div> // Loading spinner
+                        ) : (
+                            '➤'
+                        )}
                     </button>
                 </div>
             </form>

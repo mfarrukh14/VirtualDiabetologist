@@ -221,3 +221,17 @@ input {
     color: white;
 }
 
+
+.loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2); /* Outer circle */
+    border-radius: 50%;
+    border-top: 4px solid white; /* Inner circle */
+    width: 10px;
+    height: 10px;
+    animation: spin 1s linear infinite; /* Animation for spinning */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
