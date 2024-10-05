@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Home from './components/Home/index.jsx'
 import SignInPage from './components/SignInPage/index.jsx'
 import Chatbot from './components/ChatBot/index.jsx'
+import AboutUs from './components/AboutUs/index.jsx'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: '/ChatBot',
     element: <Chatbot />
+  },
+  {
+    path: '/AboutUs',
+    element: <AboutUs />
   }
 ])
 

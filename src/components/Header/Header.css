@@ -32,6 +32,7 @@
     transform: scale(1.2);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     color: whitesmoke;
+    cursor: pointer;
 }
 
 .logo-btn{
@@ -41,6 +42,7 @@
 .logo-btn:hover{
     background-color: transparent;
     border: none;
+    cursor: pointer;
 }
 
 .logo-container {

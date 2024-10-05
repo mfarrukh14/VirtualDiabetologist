@@ -15,14 +15,15 @@ import time
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app)
 
 groq_api_key = os.getenv('GROQ_API')
 
 llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
 
-# Initialize conversation history
+# Initialize conversation history and user data context
 history = []
+user_data_context = {}
 
 # Define the chat prompt template
 chat_template = ChatPromptTemplate.from_template("""
@@ -99,7 +100,7 @@ print("Vector Store DB Is Ready")
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    global history
+    global history, user_data_context
     data = request.get_json()
     user_input = data.get('prompt')
     
@@ -109,9 +110,13 @@ def ask():
         if len(history) > 5:
             history.pop(0)
 
-        # Create context from history and retrieved documents
+        # Create context from history, retrieved documents, and user data context
         retrieved_context = get_retrieved_context(user_input)  # Function to retrieve relevant context
         formatted_context = "\n".join(f"{role}: {msg}" for role, msg in history) + "\n" + retrieved_context
+        
+        # Append user data context if it exists
+        if user_data_context:
+            formatted_context += f"\nUser data: {user_data_context}"
 
         # Format the prompt with history and context
         formatted_prompt = chat_template.format(context=formatted_context, input=user_input)
@@ -135,6 +140,25 @@ def ask():
         })
     
     return jsonify({'error': 'Invalid input'}), 400
+
+# New endpoint to update user data context
+@app.route('/update-context', methods=['POST'])
+def update_context():
+    global user_data_context
+    data = request.get_json()
+    
+    # Update the user data context with the provided values
+    user_data_context = {
+        'bloodSugar': data.get('bloodSugar'),
+        'heartRate': data.get('heartRate'),
+        'age': data.get('age'),
+        'glucoseLevels': data.get('glucoseLevels'),
+        'hb1ac': data.get('hb1ac')
+    }
+
+    print("Updated user data context:", user_data_context)
+
+    return jsonify({'message': 'User data context updated successfully'})
 
 def get_retrieved_context(query):
     # Example function to retrieve context from documents

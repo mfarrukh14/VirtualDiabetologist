@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Luxurious+Script&display=swap');
+
+.luxurious-script-regular {
+    font-family: "Luxurious Script", cursive;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+
+/* Container Styling */
+.about-container {
+    background-color: rgb(36, 36, 36);
+    color: whitesmoke;
+    font-family: 'Montserrat', sans-serif;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Hero Section */
+.about-hero {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.about-hero h1 {
+    margin-top: 100px;
+    font-size: 3.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: whitesmoke;
+}
+
+.msn-img{
+    width: 270px;
+    height: 270px;
+    border-radius: 5px;
+    object-fit: cover;
+    opacity: 0.5;
+}
+
+.about-hero p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* Content Section */
+.about-content {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.about-card {
+    background-color: rgb(39, 38, 38);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgb(221, 62, 181);
+    position: relative;
+}
+
+/* Multi-color Glow Animation - ALWAYS ACTIVE */
+.about-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    border-radius: 15px;
+    padding: 2px;
+    background: linear-gradient(270deg, #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080);
+    background-size: 600% 600%; /* Control the size of the animated background */
+    animation: glowing 8s ease infinite; /* Glow animation */
+}
+
+/* Glow Animation Keyframes */
+@keyframes glowing {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Hover Effect (ONLY raise card, shadow remains the same) */
+.about-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+/* Card Titles */
+.about-card h2 {
+    font-size: 3rem;
+    font-weight: 400;
+    font-family: "Luxurious Script", cursive;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: whitesmoke;
+}
+
+/* Card Text */
+.about-card p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: whitesmoke;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .about-content {
+        flex-direction: column;
+    }
+
+    .about-hero h1 {
+        font-size: 2.8rem;
+    }
+}
