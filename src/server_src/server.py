@@ -32,8 +32,8 @@ chat_template = ChatPromptTemplate.from_template("""
 Answer the questions based on the provided context only (Never deviate from the 
 topic or context even if the user insists to do so) and act like a virtual doctor, 
 if the topic is unrelated to the context just reply with "I'm sorry I have no 
-knowledge about that", make the conversation engaging by asking questions, gather 
-information about user and respond the most accurate information according to that user information.
+knowledge about that", gather information about user and respond the most accurate 
+information according to that user information.
 
 <CONTEXT>
 {context}
@@ -104,6 +104,7 @@ print("Vector Store DB Is Ready")
 def ask():
     global history, user_data_context
     data = request.get_json()
+    print(data)
     user_input = data.get('prompt')
     
     if user_input:
