@@ -1,28 +1,29 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import { ClerkProvider } from '@clerk/clerk-react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Home from './components/Home/index.jsx'
-import SignInPage from './components/SignInPage/index.jsx'
-import Chatbot from './components/ChatBot/index.jsx'
-import AboutUs from './components/AboutUs/index.jsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Home from './components/Home/index.jsx';
+import SignInPage from './components/SignInPage/index.jsx';
+import Chatbot from './components/ChatBot/index.jsx';
+import AboutUs from './components/AboutUs/index.jsx';
+import NotFound from './components/NotFound/index.jsx'; // Import the NotFound component
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key")
+  throw new Error("Missing Publishable Key");
 }
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element:<App />
+    element: <App />
   },
   {
     path: '/SignInPage',
-    element:<SignInPage />
+    element: <SignInPage />
   },
   {
     path: '/ChatBot',
@@ -31,13 +32,18 @@ const router = createBrowserRouter([
   {
     path: '/AboutUs',
     element: <AboutUs />
+  },
+  // Add a wildcard route to catch undefined routes
+  {
+    path: '*',
+    element: <NotFound /> // Display the custom 404 component
   }
-])
+]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
       <RouterProvider router={router} />
     </ClerkProvider>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

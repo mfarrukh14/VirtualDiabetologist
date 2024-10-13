@@ -41,6 +41,162 @@ information according to that user information.
 Questions: {input}
 """)
 
+
+
+bnb_quantization = {
+    "bnb_config": {
+        "load_in_4bit": True,
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_compute_dtype": "torch.bfloat16"  
+    },
+    "base_model": "Meta-Llama-3.1-8B-Instruct",
+    "tokenizer": {
+        "load_tokenizer": "AutoTokenizer.from_pretrained(base_model)"
+    },
+    "base_model_bnb_4b": {
+        "load_model": "AutoModelForCausalLM.from_pretrained(base_model, quantization_config=bnb_config, device_map='auto')"
+    }
+}
+
+target_modules=["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "down_proj", "up_proj"]
+
+model_args = {
+    "Llama3@latest": {
+        "model": {
+            "embed_tokens": {
+                "type": "Embedding",
+                "params": {
+                    "num_embeddings": 128256,
+                    "embedding_dim": 4096
+                }
+            },
+            "layers": [
+                {
+                    "LlamaDecoderLayer": {
+                        "self_attn": {
+                            "LlamaSdpaAttention": {
+                                "q_proj": {
+                                    "type": "Linear4bit",
+                                    "params": {
+                                        "in_features": 4096,
+                                        "out_features": 4096,
+                                        "bias": False
+                                    }
+                                },
+                                "k_proj": {
+                                    "type": "Linear4bit",
+                                    "params": {
+                                        "in_features": 4096,
+                                        "out_features": 1024,
+                                        "bias": False
+                                    }
+                                },
+                                "v_proj": {
+                                    "type": "Linear4bit",
+                                    "params": {
+                                        "in_features": 4096,
+                                        "out_features": 1024,
+                                        "bias": False
+                                    }
+                                },
+                                "o_proj": {
+                                    "type": "Linear4bit",
+                                    "params": {
+                                        "in_features": 4096,
+                                        "out_features": 4096,
+                                        "bias": False
+                                    }
+                                },
+                                "rotary_emb": {
+                                    "type": "LlamaRotaryEmbedding"
+                                }
+                            },
+                            "mlp": {
+                                "LlamaMLP": {
+                                    "gate_proj": {
+                                        "type": "Linear4bit",
+                                        "params": {
+                                            "in_features": 4096,
+                                            "out_features": 14336,
+                                            "bias": False
+                                        }
+                                    },
+                                    "up_proj": {
+                                        "type": "Linear4bit",
+                                        "params": {
+                                            "in_features": 4096,
+                                            "out_features": 14336,
+                                            "bias": False
+                                        }
+                                    },
+                                    "down_proj": {
+                                        "type": "Linear4bit",
+                                        "params": {
+                                            "in_features": 14336,
+                                            "out_features": 4096,
+                                            "bias": False
+                                        }
+                                    },
+                                    "act_fn": "SiLU"
+                                }
+                            },
+                            "input_layernorm": {
+                                "type": "LlamaRMSNorm",
+                                "params": {
+                                    "shape": (4096,),
+                                    "eps": 1e-05
+                                }
+                            },
+                            "post_attention_layernorm": {
+                                "type": "LlamaRMSNorm",
+                                "params": {
+                                    "shape": (4096,),
+                                    "eps": 1e-05
+                                }
+                            }
+                        }
+                    }
+                } for _ in range(32)  # Create 32 layers
+            ],
+            "norm": {
+                "type": "LlamaRMSNorm",
+                "params": {
+                    "shape": (4096,),
+                    "eps": 1e-05
+                }
+            },
+            "rotary_emb": {
+                "type": "LlamaRotaryEmbedding"
+            }
+        },
+        "lm_head": {
+            "type": "Linear",
+            "params": {
+                "in_features": 4096,
+                "out_features": 128256,
+                "bias": False
+            }
+        }
+    }
+}
+
+lora_r = 16
+lora_alpha = 0.04390
+lora_dropout = False
+
+peft_config_dict = {
+    "lora_alpha": lora_alpha,
+    "lora_dropout": lora_dropout,
+    "r": lora_r,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+        "q_proj", "k_proj", "v_proj", "o_proj",
+        "gate_proj", "up_proj", "down_proj"
+    ]
+}
+
+
 def vector_embedding():
     persist_directory = "C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//src//server_src//chroma_db"
 
@@ -104,7 +260,6 @@ print("Vector Store DB Is Ready")
 def ask():
     global history, user_data_context
     data = request.get_json()
-    print(data)
     user_input = data.get('prompt')
     
     if user_input:

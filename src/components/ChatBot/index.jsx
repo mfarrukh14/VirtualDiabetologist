@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import Header from '../Header/index';
 import './Chatbot.css';
@@ -16,6 +16,9 @@ export default function Chatbot() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const { isLoaded, user } = useUser();
+    
+    // Ref for the chat container
+    const chatContainerRef = useRef(null);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
 
@@ -29,7 +32,7 @@ export default function Chatbot() {
     };
 
     const handleFormSubmit = async () => {
-        const res = await fetch('http://127.0.0.1:5000/update-context', {
+        const res = await fetch('http://127.0.0.1:3000/update-context', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -44,7 +47,7 @@ export default function Chatbot() {
         e.preventDefault();
         setIsLoading(true);
 
-        const res = await fetch('http://127.0.0.1:5000/ask', {
+        const res = await fetch('http://127.0.0.1:3000/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
@@ -59,6 +62,13 @@ export default function Chatbot() {
         }
     };
 
+    // Scroll to the bottom of the chat container whenever chatHistory updates
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [chatHistory]);
+
     if (!isLoaded) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -70,8 +80,8 @@ export default function Chatbot() {
     return (
         <>
             <Header isInverted={true} />
-            <div className="font-sans text-white bg-gray-900 h-screen w-screen flex flex-col justify-between pt-16 mb-10"> {/* Changed pt-36 to pt-16 */}
-                <div className="overflow-y-auto flex-1 px-5 pb-16 chat-container"> {/* Added class chat-container */}
+            <div className="font-sans text-white bg-gray-900 h-screen w-screen flex flex-col justify-between pt-16 mb-10">
+                <div className="overflow-y-auto flex-1 px-5 pb-16 chat-container" ref={chatContainerRef}>
                     <div className="text-center mb-5 mt-60">
                         <h1 className="hlo-txt text-5xl font-thin bg-gradient-to-r from-blue-600 via-purple-500 to-red-400 inline-block text-transparent bg-clip-text">
                             Hello, {user.firstName}
@@ -80,11 +90,21 @@ export default function Chatbot() {
                             How can I help you today?
                         </h1>
                     </div>
-                    <div className="chat-history w-full text-left"> {/* Full width chat history */}
+                    <div className="chat-history w-full text-left">
                         {chatHistory.map((chat, index) => (
-                            <div key={index} className="chat-item my-5 p-4 bg-white bg-opacity-10 text-gray-300 rounded-lg">
-                                <p><i><b>{chat.prompt}</b></i><br />---------------------------</p>
-                                <p>{chat.response}</p>
+                            <div key={index} className="chat-item my-3">
+                                {/* User prompt bubble */}
+                                <div className="chat-bubble-prompt flex justify-end">
+                                    <div className="bubble max-w-xl p-4 rounded-lg text-white bg-sky-800">
+                                        <p className="font-bold">{chat.prompt}</p>
+                                    </div>
+                                </div>
+                                {/* Bot response bubble */}
+                                <div className="chat-bubble-response flex justify-start">
+                                    <div className="bubble max-w-2xl p-4 rounded-lg text-white bg-gray-700">
+                                        <p>{chat.response}</p>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>

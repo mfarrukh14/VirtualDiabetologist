@@ -16,8 +16,7 @@
     transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 .logo-container img:hover {
-    filter: brightness(2.5) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-    transform: scale(1.1);
+    transform: scale(1.3);
 }
 
 .hd-btn {

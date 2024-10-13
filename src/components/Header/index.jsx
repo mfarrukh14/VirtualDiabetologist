@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { UserButton, useUser } from '@clerk/clerk-react';
-import './Header.css'
+import './Header.css';
+import { FaUser } from 'react-icons/fa';
 
 function Header({ isInverted }) {
     const { user, isSignedIn } = useUser();
@@ -9,6 +10,15 @@ function Header({ isInverted }) {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    // Customize the UserButton appearance
+    const userButtonAppearance = {
+        elements: {
+            userButtonAvatarBox: "w-10 h-10", // Custom width and height
+            userButtonPopoverCard: "bg-blue-100", // Custom background for the popover card
+            userButtonPopoverActionButton: "text-red-600", // Custom text color for action buttons
+        },
     };
 
     return (
@@ -34,7 +44,6 @@ function Header({ isInverted }) {
             {/* Mobile menu button */}
             <div className="md:hidden">
                 <button onClick={toggleMenu} className="text-gray-400 focus:outline-none">
-                    {/* Add an icon for the menu button here (e.g., FontAwesome or a custom icon) */}
                     &#9776; {/* Hamburger icon */}
                 </button>
             </div>
@@ -59,10 +68,14 @@ function Header({ isInverted }) {
 
             {isSignedIn ? (
                 <div className='after-login flex items-center space-x-4'>
-                    <Link to={'/dashboard'}>
-                        <button className="hd-btn bg-slate-700 text-white font-bold py-2 px-4 rounded-md hover:scale-105 transition-all duration-300">Dashboard</button>
-                    </Link>
-                    <UserButton />
+                    <UserButton
+                        appearance={userButtonAppearance} // Applying custom appearance
+                        renderTrigger={({ open }) => (
+                            <button onClick={open} className="flex items-center justify-center p-2 rounded-md bg-slate-700 hover:bg-slate-600">
+                                <FaUser className="text-white" size={24} /> {/* User icon */}
+                            </button>
+                        )}
+                    />
                 </div>
             ) : (
                 <Link to={'/SignInPage'}>

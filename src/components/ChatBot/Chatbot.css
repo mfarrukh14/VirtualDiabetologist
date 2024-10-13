@@ -32,6 +32,7 @@ body, html {
     overflow-x: hidden; /* Disable horizontal scroll */
     scrollbar-width: thin; /* Firefox scrollbar size */
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox scrollbar color */
+    padding: 100px;
 }
 
 /* Webkit-based browsers (Chrome, Safari) scrollbar styling */
@@ -52,3 +53,26 @@ body, html {
 .chat-container {
     overflow-x: hidden; /* Disable horizontal scroll */
 }
+
+.chat-item {
+    margin: 0.5rem 0;
+}
+
+.bubble {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 90%; /* Increased max-width to make the bubbles wider */
+
+}
+
+.chat-bubble-prompt {
+    align-items: flex-end;
+}
+
+.chat-bubble-response {
+    align-items: flex-start;
+}
+
+
+

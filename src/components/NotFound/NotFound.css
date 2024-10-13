@@ -1,0 +1,30 @@
+/* src/pages/NotFound.css */
+.not-found-container {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    color: #ff6b6b;
+  }
+  
+  p {
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .home-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .home-button:hover {
+    background-color: #ff4a4a;
+  }
+  
