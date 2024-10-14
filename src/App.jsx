@@ -13,7 +13,7 @@ function App() {
 
   return (
     <>
-      <Header />
+      <Header isInverted={true}/>
         <Home />
       <Footer />
     </>

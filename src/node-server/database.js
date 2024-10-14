@@ -11,7 +11,10 @@ const db = new sqlite3.Database(path.join(__dirname, 'api_keys.db'), (err) => {
         db.run(`CREATE TABLE IF NOT EXISTS api_keys (
             id TEXT PRIMARY KEY,
             key TEXT NOT NULL,
-            user_id TEXT NOT NULL
+            user_id TEXT NOT NULL,
+            name TEXT NOT NULL UNIQUE,
+            createdOn TEXT NOT NULL,
+            expireOn TEXT NOT NULL
         )`, (err) => {
             if (err) {
                 console.error('Error creating table: ' + err.message);

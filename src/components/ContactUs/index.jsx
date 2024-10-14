@@ -46,12 +46,12 @@ const ContactUs = () => {
 
     return (
         <>
-        <Header isInverted={true}/>
+            <Header isInverted={true} />
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-32">
                 <div className="flex items-center justify-center max-w-7xl w-full gap-10">
                     <div className="flex justify-center items-center">
                         <img
-                            src="./contactUs.png" 
+                            src="./contactUs.png"
                             alt="Contact Icon"
                             className="w-80 h-80 object-cover"
                         />
@@ -112,7 +112,8 @@ const ContactUs = () => {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full p-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
+                                className="w-full p-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md shadow-md hover:scale-105 hover:shadow-lg duration-300"
+
                             >
                                 Send Message
                             </button>

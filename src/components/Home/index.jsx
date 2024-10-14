@@ -13,6 +13,7 @@ function Home() {
     '/videos/v2.mp4',
     '/videos/v3.mp4',
     '/videos/v4.mp4',
+    '/videos/v5.mp4',
   ];
 
   // Array of quotes
@@ -107,12 +108,12 @@ function Home() {
         <video
           id="background-video"
           autoPlay
-          loop={false} 
+          loop={false}
           muted
           playsInline
           preload="auto"
           className="background-video"
-          src={videos[currentVideoIndex]} 
+          src={videos[currentVideoIndex]}
         />
         <div className="overlay"></div>
         <div className="content">
@@ -121,7 +122,9 @@ function Home() {
             <span className="cursor">{blinkingCursor ? '_' : ' '}</span>
           </h1>
           <Link to={isSignedIn ? '/Chatbot' : '/SignInPage'}>
-            <button className="gradient-button">Talk with Our ChatBot</button>
+            <button className="bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold text-lg py-3 px-6 rounded-lg shadow-lg hover:from-blue-500 hover:to-purple-500 transition duration-300 ease-in-out">
+              Talk with Our ChatBot
+            </button>
           </Link>
         </div>
       </div>

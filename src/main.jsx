@@ -53,6 +53,7 @@ const router = createBrowserRouter([
     path: '/API',
     element: <API />
   },
+  // Catch-all route for undefined paths
   {
     path: '*',
     element: <NotFound />

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UserButton, useUser } from '@clerk/clerk-react';
+import { FaUser, FaTimes, FaServicestack, FaInfoCircle, FaEnvelope, FaCode } from 'react-icons/fa'; // Import the required icons
 import './Header.css';
-import { FaUser } from 'react-icons/fa';
+import logo from '../../../public/logo.svg'; // Import the logo image
 
 function Header({ isInverted }) {
     const { user, isSignedIn } = useUser();
@@ -21,72 +22,88 @@ function Header({ isInverted }) {
         },
     };
 
+    // Menu items with corresponding icons
+    const menuItems = [
+        { path: '/OurServices', label: 'Our Services', icon: <FaServicestack /> },
+        { path: '/AboutUs', label: 'About Us', icon: <FaInfoCircle /> },
+        { path: '/ContactUs', label: 'Contact Us', icon: <FaEnvelope /> },
+        { path: '/API', label: 'API', icon: <FaCode /> },
+    ];
+
     return (
         <div className="transparent-header flex items-center justify-between w-full py-4 px-6 absolute top-0 z-50">
+            {/* Logo */}
             <div className="logo-container flex-shrink-0">
                 <Link to={'/'}>
-                    {isInverted ? (
-                        <button className='logo-btn'>
-                            <img
-                                src="./logo.svg"
-                                alt="Logo"
-                                className="invert"
-                            />
-                        </button>
-                    ) : (
-                        <button className='logo-btn'>
-                            <img src="./logo.svg" alt="Logo" />
-                        </button>
-                    )}
+                    <button className='logo-btn'>
+                        <img
+                            src={logo} // Use the imported logo
+                            alt="Logo"
+                            className={isInverted ? "invert" : ""}
+                        />
+                    </button>
                 </Link>
             </div>
 
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-                <button onClick={toggleMenu} className="text-gray-400 focus:outline-none">
-                    &#9776; {/* Hamburger icon */}
-                </button>
+            {/* Main header buttons (visible in desktop view) */}
+            <div className="hidden md:flex flex-col md:flex-row md:gap-20 gap-2">
+                {menuItems.map(({ path, label, icon }, index) => (
+                    <Link to={path} key={index}>
+                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110 flex items-center space-x-2">
+                            {icon} {/* Display icon */}
+                            <span>{label}</span> {/* Display button text */}
+                        </button>
+                    </Link>
+                ))}
             </div>
 
-            {/* Main header buttons */}
-            <div className={`main-hdr-btn flex flex-col md:flex-row md:gap-8 gap-2 transition-all duration-300 ${isMenuOpen ? 'absolute right-0 top-16 bg-gray-800 rounded-md shadow-lg p-4' : 'hidden md:flex'}`}>
-                <div className='srvc-btn'>
-                    <Link to={'/OurServices'}>
-                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Our Services</button>
-                    </Link>
-                </div>
-                <div className='abt-btn'>
-                    <Link to={'/AboutUs'}>
-                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">About Us</button>
-                    </Link>
-                </div>
-                <div className='contact-btn'>
-                    <Link to={'/ContactUs'}>
-                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Contact Us</button>
-                    </Link>
-                </div>
-                <div className='api-btn'>
-                    <Link to={'/API'}>
-                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">API</button>
-                    </Link>
-                </div>
-            </div>
-
-            {isSignedIn ? (
-                <div className='after-login flex items-center space-x-4'>
+            {/* User Authentication and Hamburger Button */}
+            <div className='flex items-center space-x-4'>
+                {isSignedIn ? (
                     <UserButton
-                        appearance={userButtonAppearance} // Applying custom appearance
+                        appearance={userButtonAppearance}
                         renderTrigger={({ open }) => (
                             <button onClick={open} className="flex items-center justify-center p-2 rounded-md bg-slate-700 hover:bg-slate-600">
                                 <FaUser className="text-white" size={24} /> {/* User icon */}
                             </button>
                         )}
                     />
+                ) : (
+                    <Link to={'/SignInPage'}>
+                        <button className="hd-btn bg-slate-700 text-white font-bold py-2 px-4 rounded-md hover:scale-105 transition-all duration-300">
+                            Get Started
+                        </button>
+                    </Link>
+                )}
+
+                {/* Hamburger menu button for small screens */}
+                <div className="md:hidden">
+                    <button onClick={toggleMenu} className="text-gray-400 focus:outline-none">
+                        &#9776; {/* Hamburger icon */}
+                    </button>
                 </div>
-            ) : (
-                <Link to={'/SignInPage'}>
-                    <button className="hd-btn bg-slate-700 text-white font-bold py-2 px-4 rounded-md hover:scale-105 transition-all duration-300">Get Started</button>
-                </Link>
+            </div>
+
+            {/* Full-screen mobile menu that appears when the hamburger icon is clicked */}
+            {isMenuOpen && (
+                <div className="fixed inset-0 bg-gray-800 z-40 flex flex-col"> {/* Solid background */}
+                    <button
+                        onClick={toggleMenu}
+                        className="absolute top-4 right-4 text-white text-2xl"
+                    >
+                        <FaTimes /> {/* Close icon */}
+                    </button>
+                    <div className="flex flex-col items-center justify-center h-full space-y-12"> {/* Add space-y-* for spacing */}
+                        {menuItems.map(({ path, label, icon }, index) => (
+                            <Link to={path} key={index} onClick={toggleMenu}>
+                                <button className="text-white text-lg font-bold flex items-center space-x-2">
+                                    {icon} {/* Display icon */}
+                                    <span>{label}</span> {/* Display button text */}
+                                </button>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );

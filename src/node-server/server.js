@@ -12,8 +12,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const extractUserId = (req, res, next) => {
-    const userId = req.headers['user-id']; // Assume user ID is sent in headers
-    console.log('Extracted user ID:', userId); // Log the extracted user ID
+    const userId = req.headers['user-id']; 
     req.userId = userId;
     next();
 };
@@ -23,7 +22,6 @@ app.use(extractUserId);
 
 // Endpoint to get API keys for a specific user
 app.get('/api-keys', (req, res) => {
-    console.log('fetch called')
     const userId = req.userId; // Use extracted user ID
     db.all('SELECT * FROM api_keys WHERE user_id = ?', [userId], (err, rows) => {
         if (err) {
@@ -38,13 +36,21 @@ app.get('/api-keys', (req, res) => {
 // Endpoint to create a new API key
 app.post('/api-keys', (req, res) => {
     const userId = req.userId; // Use extracted user ID
+    const { name } = req.body; // Get the name from the request body
+    const createdOn = new Date().toISOString(); // Create a timestamp for createdOn
+    const expireOn = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // Set expiration to 30 days from now
+    
     const newKey = {
         id: uuidv4(), // Generate a unique ID for the key
         key: uuidv4(), // Generate a unique API key (UUID)
-        user_id: userId // Associate key with user ID
+        name: name, // Associate the name with the key
+        user_id: userId, // Associate key with user ID
+        createdOn: createdOn,
+        expireOn: expireOn
     };
     
-    db.run('INSERT INTO api_keys (id, key, user_id) VALUES (?, ?, ?)', [newKey.id, newKey.key, newKey.user_id], function(err) {
+    db.run('INSERT INTO api_keys (id, key, user_id, name, createdOn, expireOn) VALUES (?, ?, ?, ?, ?, ?)', 
+        [newKey.id, newKey.key, newKey.user_id, newKey.name, newKey.createdOn, newKey.expireOn], function(err) {
         if (err) {
             console.error('Error inserting new API key: ' + err.message);
             res.status(500).json({ error: 'Internal server error' });
@@ -54,6 +60,7 @@ app.post('/api-keys', (req, res) => {
         }
     });
 });
+
 
 // Endpoint to delete an API key
 app.delete('/api-keys/:id', (req, res) => {
@@ -106,6 +113,12 @@ app.post('/api/v1', async (req, res) => {
             return res.status(403).json({ error: 'Invalid API key.' });
         }
 
+        // Check if the API key is expired
+        const currentDate = new Date().toISOString();
+        if (currentDate > row.expireOn) {
+            return res.status(403).json({ error: `API key expired on ${row.expireOn}` });
+        }
+
         // Forward the prompt to the Flask server
         try {
             const response = await axios.post('http://127.0.0.1:5000/ask', {
@@ -118,6 +131,7 @@ app.post('/api/v1', async (req, res) => {
         }
     });
 });
+
 
 
 // Define the endpoint for updating context

@@ -1,0 +1,15 @@
+@keyframes floating {
+    0% {
+        transform: translateY(0) rotate(-15deg); /* Start slightly rotated and at the initial position */
+    }
+    50% {
+        transform: translateY(-25px) rotate(15deg); /* Move up and rotate slightly */
+    }
+    100% {
+        transform: translateY(0) rotate(-15deg); /* Return to initial position and rotation */
+    }
+}
+
+.animate-floating {
+    animation: floating 3.5s ease-in-out infinite;
+}
