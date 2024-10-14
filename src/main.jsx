@@ -9,6 +9,10 @@ import SignInPage from './components/SignInPage/index.jsx';
 import Chatbot from './components/ChatBot/index.jsx';
 import AboutUs from './components/AboutUs/index.jsx';
 import NotFound from './components/NotFound/index.jsx'; // Import the NotFound component
+import ContactUs from './components/ContactUs/index.jsx';
+import OurServices from './components/OurServices/index.jsx';
+import PrivacyPolicy from './components/PrivacyPolicy/index.jsx';
+import API from './components/API/index.jsx';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -33,10 +37,25 @@ const router = createBrowserRouter([
     path: '/AboutUs',
     element: <AboutUs />
   },
-  // Add a wildcard route to catch undefined routes
+  {
+    path: '/ContactUs',
+    element: <ContactUs />
+  },
+  {
+    path: '/OurServices',
+    element: <OurServices />
+  },
+  {
+    path: '/PrivacyPolicy',
+    element: <PrivacyPolicy />
+  },
+  {
+    path: '/API',
+    element: <API />
+  },
   {
     path: '*',
-    element: <NotFound /> // Display the custom 404 component
+    element: <NotFound />
   }
 ]);
 

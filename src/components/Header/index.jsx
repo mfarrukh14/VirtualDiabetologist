@@ -51,7 +51,9 @@ function Header({ isInverted }) {
             {/* Main header buttons */}
             <div className={`main-hdr-btn flex flex-col md:flex-row md:gap-8 gap-2 transition-all duration-300 ${isMenuOpen ? 'absolute right-0 top-16 bg-gray-800 rounded-md shadow-lg p-4' : 'hidden md:flex'}`}>
                 <div className='srvc-btn'>
-                    <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Our Services</button>
+                    <Link to={'/OurServices'}>
+                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Our Services</button>
+                    </Link>
                 </div>
                 <div className='abt-btn'>
                     <Link to={'/AboutUs'}>
@@ -59,10 +61,14 @@ function Header({ isInverted }) {
                     </Link>
                 </div>
                 <div className='contact-btn'>
-                    <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Contact Us</button>
+                    <Link to={'/ContactUs'}>
+                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">Contact Us</button>
+                    </Link>
                 </div>
                 <div className='api-btn'>
-                    <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">API</button>
+                    <Link to={'/API'}>
+                        <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110">API</button>
+                    </Link>
                 </div>
             </div>
 
