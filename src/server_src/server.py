@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from langchain_ollama.llms import OllamaLLM
 from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import OllamaEmbeddings
@@ -20,8 +21,12 @@ CORS(app)
 
 groq_api_key = os.getenv('GROQ_API')
 
-llm = ChatGroq(groq_api_key=groq_api_key, model_name="Llama3-8b-8192")
-#llm = Ollama(model="llama3:latest")
+llm = ChatGroq(groq_api_key=groq_api_key, 
+                model_name="Llama3-8b-8192", 
+                temperature=0.5, 
+                verbose=True, n=1, 
+                max_retries=2)
+#llm = OllamaLLM(model="llama3:latest", temperature=0.5, verbose=True, max_retries=2)
 
 # Initialize conversation history and user data context
 history = []
@@ -265,7 +270,7 @@ def ask():
     if user_input:
         # Update conversation history
         history.append(("human", user_input))
-        if len(history) > 5:
+        if len(history) > 12:
             history.pop(0)
 
         # Create context from history, retrieved documents, and user data context
@@ -325,10 +330,10 @@ def get_retrieved_context(query):
     retrieval_chain = create_retrieval_chain(retriever, document_chain)
     try:
         response = retrieval_chain.invoke({'input': query})
-        return response.get('answer', '')  # Adjust based on actual response structure
+        return response.get('answer', '')  
     except Exception as e:
         print(f"Error retrieving context: {e}")
         return ''
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=False)

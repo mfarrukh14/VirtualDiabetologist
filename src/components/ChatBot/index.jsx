@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/clerk-react';
 import Header from '../Header/index';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import Font Awesome Icon
+import { faBroom } from '@fortawesome/free-solid-svg-icons'; // Import Broom Icon
 import './Chatbot.css';
 
 export default function Chatbot() {
@@ -15,9 +17,9 @@ export default function Chatbot() {
         hb1ac: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { isLoaded, user } = useUser();
-    
-    // Ref for the chat container
+
     const chatContainerRef = useRef(null);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
@@ -28,7 +30,9 @@ export default function Chatbot() {
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevData) => ({ ...prevData, [name]: value }));
+        if (/^\d*\.?\d*$/.test(value)) {
+            setFormData((prevData) => ({ ...prevData, [name]: value }));
+        }
     };
 
     const handleFormSubmit = async () => {
@@ -45,29 +49,63 @@ export default function Chatbot() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        setIsSubmitting(true);
 
         const res = await fetch('http://127.0.0.1:3000/ask', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'user-id': user.id },
             body: JSON.stringify({ prompt })
         });
 
         const data = await res.json();
-        setIsLoading(false);
+        setChatHistory((prevHistory) => [...prevHistory, { prompt, response: data.response }]);
 
-        if (res.ok) {
-            setChatHistory((prevHistory) => [...prevHistory, { prompt, response: data.response }]);
-            setPrompt('');
-        }
+        await fetch('http://127.0.0.1:3000/chat-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'user-id': user.id },
+            body: JSON.stringify({ prompt, response: data.response })
+        });
+
+        setPrompt('');
+        setIsSubmitting(false);
     };
 
-    // Scroll to the bottom of the chat container whenever chatHistory updates
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            setIsLoading(true);
+            const res = await fetch(`http://127.0.0.1:3000/chat-history`, {
+                method: 'GET',
+                headers: { 'user-id': user.id }
+            });
+            const data = await res.json();
+            setIsLoading(false);
+
+            if (res.ok && data.length > 0) {
+                setChatHistory(data);
+            }
+        };
+
+        if (isLoaded && user && chatHistory.length === 0) {
+            fetchChatHistory();
+        }
+    }, [isLoaded, user, chatHistory.length]);
+
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [chatHistory]);
+
+    const handleDeleteChatHistory = async () => {
+        const res = await fetch('http://127.0.0.1:3000/chat-history', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'user-id': user.id }
+        });
+
+        if (res.ok) {
+            setChatHistory([]);
+        }
+    };
 
     if (!isLoaded) {
         return (
@@ -91,22 +129,29 @@ export default function Chatbot() {
                         </h1>
                     </div>
                     <div className="chat-history w-full text-left">
-                        {chatHistory.map((chat, index) => (
-                            <div key={index} className="chat-item my-3">
-                                {/* User prompt bubble */}
-                                <div className="chat-bubble-prompt flex justify-end">
-                                    <div className="bubble max-w-xl p-4 rounded-lg text-white bg-sky-800">
-                                        <p className="font-bold">{chat.prompt}</p>
+                        {isLoading ? (
+                            <p className="text-center text-gray-300">Loading chat history...</p>
+                        ) : (
+                            chatHistory.map((chat, index) => (
+                                <div key={index} className="chat-item my-3">
+                                    <div className="chat-bubble-prompt flex justify-end">
+                                        <div className="bubble max-w-xl -mr-20 mb-3 p-4 rounded-lg text-white bg-sky-800">
+                                            <p className="font-bold">{chat.prompt}</p>
+                                        </div>
+                                    </div>
+                                    <div className="chat-bubble-response flex justify-start">
+                                        <div className="bubble max-w-2xl -ml-20 p-4 rounded-lg text-white bg-gray-700">
+                                            <p>{chat.response}</p>
+                                        </div>
                                     </div>
                                 </div>
-                                {/* Bot response bubble */}
-                                <div className="chat-bubble-response flex justify-start">
-                                    <div className="bubble max-w-2xl p-4 rounded-lg text-white bg-gray-700">
-                                        <p>{chat.response}</p>
-                                    </div>
-                                </div>
+                            ))
+                        )}
+                        {isSubmitting && (
+                            <div className="flex justify-center mt-4">
+                                <div className="spinner"></div>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
                 <form onSubmit={handleSubmit} className="fixed bottom-0 w-full bg-gray-900 py-4">
@@ -117,19 +162,28 @@ export default function Chatbot() {
                             value={prompt}
                             onChange={handlePromptChange}
                             placeholder="Enter a prompt here"
-                            className="dark-input w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white pr-12"
+                            className="dark-input w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white pr-20 pl-12"
                             autoComplete="off"
                         />
                         <button type="button" onClick={toggleModal} className="form-btn absolute right-12 top-1/2 transform -translate-y-1/2 text-xl">
                             📜
                         </button>
-                        <button type="submit" className="arrow-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" disabled={isLoading}>
-                            {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-t-transparent border-purple-400 rounded-full animate-spin"></div>
-                            ) : (
-                                '➤'
-                            )}
+                        <button
+                            type="button"
+                            onClick={handleDeleteChatHistory}
+                            className="form-btn absolute left-3 top-1/2 transform -translate-y-1/2 text-xl hover:text-blue-500"
+                        >
+                            <FontAwesomeIcon icon={faBroom} />
                         </button>
+                        {isSubmitting ? (
+                            <div className="flex justify-center items-center absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8">
+                                <div className="w-5 h-5 border-2 border-t-transparent border-purple-400 rounded-full animate-spin"></div>
+                            </div>
+                        ) : (
+                            <button type="submit" className="arrow-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-xl">
+                                ➤
+                            </button>
+                        )}
                     </div>
                 </form>
 
@@ -141,22 +195,85 @@ export default function Chatbot() {
                             </span>
                             <h2 className="text-lg mb-4">Enter your vitals</h2>
                             <form>
-                                {['bloodSugar', 'heartRate', 'age', 'glucoseLevels', 'hb1ac'].map((field) => (
-                                    <div key={field} className="form-group mb-3">
-                                        <label className="text-sm text-gray-300">{field.replace(/([A-Z])/g, ' $1')}:</label>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div className="form-group">
+                                        <label className="text-sm text-gray-300">Blood Sugar (mm/dL):</label>
                                         <input
                                             type="text"
-                                            name={field}
-                                            value={formData[field]}
+                                            name="bloodSugar"
+                                            value={formData.bloodSugar}
                                             onChange={handleFormChange}
-                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white"
-                                            autoComplete="off"
+                                            placeholder="mm/dL"
+                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                                            pattern="\d*"
                                         />
                                     </div>
-                                ))}
-                                <button type="button" onClick={handleFormSubmit} className="submit-btn w-full py-2 bg-blue-500 text-white rounded-md mt-4 hover:bg-blue-700">
-                                    Submit
-                                </button>
+                                    <div className="form-group">
+                                        <label className="text-sm text-gray-300">Heart Rate (bpm):</label>
+                                        <input
+                                            type="text"
+                                            name="heartRate"
+                                            value={formData.heartRate}
+                                            onChange={handleFormChange}
+                                            placeholder="bpm"
+                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                                            pattern="\d*"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="text-sm text-gray-300">Age (years):</label>
+                                        <input
+                                            type="text"
+                                            name="age"
+                                            value={formData.age}
+                                            onChange={handleFormChange}
+                                            placeholder="years"
+                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                                            pattern="\d*"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="text-sm text-gray-300">Glucose Levels (mg/dL):</label>
+                                        <input
+                                            type="text"
+                                            name="glucoseLevels"
+                                            value={formData.glucoseLevels}
+                                            onChange={handleFormChange}
+                                            placeholder="mg/dL"
+                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                                            pattern="\d*"
+                                        />
+                                    </div>
+                                    <div className="form-group col-span-2">
+                                        <label className="text-sm text-gray-300">Hb1Ac (%):</label>
+                                        <input
+                                            type="text"
+                                            name="hb1ac"
+                                            value={formData.hb1ac}
+                                            onChange={handleFormChange}
+                                            placeholder="%"
+                                            className="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-400"
+                                            pattern="\d*"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex justify-center mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={toggleModal}
+                                        className="cancel-btn w-1/3 h-10 py-1.5 bg-gray-500 text-white rounded-md hover:bg-gray-600 mr-2 mt-4" // Added 'mr-2' for margin
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleFormSubmit}
+                                        className={`submit-btn w-1/3 h-10 py-1.5 text-white rounded-md mt-4 ${!Object.values(formData).some(value => value) ? 'bg-blue-500 opacity-50 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700'}`}
+                                        disabled={!Object.values(formData).some(value => value)}
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>

@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const { db, closeDb } = require('./database');
 
 const app = express();
-const PORT = 3000; // You can choose any port that is not in use
+const PORT = 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -60,6 +60,65 @@ app.post('/api-keys', (req, res) => {
         }
     });
 });
+
+// Endpoint to save chat history
+app.post('/chat-history', (req, res) => {
+    console.log('posting User chat to db')
+    const userId = req.userId;
+    const { prompt, response } = req.body;
+    const createdAt = new Date().toISOString();
+
+    const newChat = {
+        id: uuidv4(),
+        user_id: userId,
+        prompt: prompt,
+        response: response,
+        createdAt: createdAt,
+    };
+
+    db.run('INSERT INTO chat_history (id, user_id, prompt, response, createdAt) VALUES (?, ?, ?, ?, ?)', 
+        [newChat.id, newChat.user_id, newChat.prompt, newChat.response, newChat.createdAt], function(err) {
+            if (err) {
+                console.error('Error saving chat history: ' + err.message);
+                res.status(500).json({ error: 'Internal server error' });
+            } else {
+                res.status(201).json(newChat);
+            }
+    });
+});
+
+// Endpoint to get chat history for a user
+app.get('/chat-history', (req, res) => {
+    console.log('fetching user chat_hist from db...')
+    const userId = req.userId;
+
+    db.all('SELECT * FROM chat_history WHERE user_id = ? ORDER BY createdAt DESC', [userId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching chat history: ' + err.message);
+            res.status(500).json({ error: 'Internal server error' });
+        } else {
+            res.json(rows);
+        }
+    });
+});
+
+// Endpoint to delete chat history for a user
+app.delete('/chat-history', (req, res) => {
+    const userId = req.userId;
+
+    db.run('DELETE FROM chat_history WHERE user_id = ?', userId, function(err) {
+        if (err) {
+            console.error('Error deleting chat history: ' + err.message);
+            res.status(500).json({ error: 'Internal server error' });
+        } else if (this.changes === 0) {
+            res.status(404).json({ error: 'No chat history found for this user.' });
+        } else {
+            console.log(`Chat history deleted for user: ${userId}`); // Log the deletion
+            res.status(204).send(); // No content response
+        }
+    });
+});
+
 
 
 // Endpoint to delete an API key

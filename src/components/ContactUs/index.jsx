@@ -22,7 +22,6 @@ const ContactUs = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Simulate email submission
         const response = await fetch('/send-email', {
             method: 'POST',
             headers: {
@@ -47,16 +46,19 @@ const ContactUs = () => {
     return (
         <>
             <Header isInverted={true} />
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-32">
-                <div className="flex items-center justify-center max-w-7xl w-full gap-10">
-                    <div className="flex justify-center items-center">
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center pt-24 px-6 py-6 lg:p-32">
+                <div className="flex flex-col lg:flex-row items-center justify-center max-w-7xl w-full gap-10">
+                    {/* Hide icon on small screens */}
+                    <div className="hidden lg:flex justify-center items-center">
                         <img
                             src="./contactUs.png"
                             alt="Contact Icon"
                             className="w-80 h-80 object-cover"
                         />
                     </div>
-                    <div className="bg-gray-900 backdrop-blur-lg shadow-xl rounded-2xl p-8 w-full max-w-lg">
+
+                    {/* Contact form, full width on mobile */}
+                    <div className="bg-gray-900 backdrop-blur-lg shadow-xl rounded-2xl p-8 w-full lg:max-w-lg">
                         <h2 className="text-3xl font-semibold text-center text-white mb-6">Contact Us</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
@@ -113,7 +115,6 @@ const ContactUs = () => {
                             <button
                                 type="submit"
                                 className="w-full p-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-md shadow-md hover:scale-105 hover:shadow-lg duration-300"
-
                             >
                                 Send Message
                             </button>
@@ -121,10 +122,11 @@ const ContactUs = () => {
                     </div>
                 </div>
 
+                {/* Get in touch section */}
                 <div className="w-full mt-16 p-8 bg-gray-900 rounded-xl shadow-lg">
                     <div className="text-white space-y-6">
                         <h3 className="text-2xl font-semibold text-center">Get in touch with us</h3>
-                        <div className="flex justify-center space-x-8">
+                        <div className="flex flex-col lg:flex-row justify-center space-y-4 lg:space-x-8 lg:space-y-0">
                             <div className="flex items-center space-x-4">
                                 <EnvelopeIcon className="h-6 w-6 text-purple-500" />
                                 <p>virtualdiabetologist@gmail.com</p>
@@ -138,10 +140,12 @@ const ContactUs = () => {
                                 <p>Sector E8, Islamabad, Pakistan</p>
                             </div>
                         </div>
+
+                        {/* Responsive map */}
                         <div className="flex justify-center">
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.504290402195!2d73.04337027444397!3d33.70203188069927!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfbeaf837e7bff%3A0x84f120dfe43df3a!2sBahria%20University%20Islamabad!5e0!3m2!1sen!2s!4v1697282296407!5m2!1sen!2s" // Replace with actual map link
-                                className="w-full max-w-2xl h-64 rounded-lg"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.504290402195!2d73.04337027444397!3d33.70203188069927!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfbeaf837e7bff%3A0x84f120dfe43df3a!2sBahria%20University%20Islamabad!5e0!3m2!1sen!2s!4v1697282296407!5m2!1sen!2s"
+                                className="w-full lg:w-full h-64 sm:h-48 lg:h-96 rounded-lg"
                                 allowFullScreen
                                 loading="lazy"
                             ></iframe>
