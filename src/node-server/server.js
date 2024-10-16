@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { db, closeDb } = require('./database');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +21,32 @@ const extractUserId = (req, res, next) => {
 
 
 app.use(extractUserId);
+
+
+
+// Setup multer for file handling
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.post('/upload-image', upload.single('image'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    // Forward the image to Flask server for processing
+    const response = await axios.post('http://127.0.0.1:5000/detect', {
+      image: req.file.buffer.toString('base64'), // Send the image as base64
+    });
+
+    console.log('Image forwarded to Flask "/detect" route');
+    res.json(response.data); // Forward Flask's response to the frontend
+  } catch (error) {
+    console.error('Error communicating with Flask server:', error);
+    res.status(500).json({ error: 'Error communicating with Flask server' });
+  }
+});
+
 
 // Endpoint to get API keys for a specific user
 app.get('/api-keys', (req, res) => {
@@ -89,7 +117,7 @@ app.post('/chat-history', (req, res) => {
 
 // Endpoint to get chat history for a user
 app.get('/chat-history', (req, res) => {
-    console.log('fetching user chat_hist from db...')
+    console.log('fetching user chat_hist from db...');
     const userId = req.userId;
 
     db.all('SELECT * FROM chat_history WHERE user_id = ? ORDER BY createdAt DESC', [userId], (err, rows) => {
@@ -97,10 +125,13 @@ app.get('/chat-history', (req, res) => {
             console.error('Error fetching chat history: ' + err.message);
             res.status(500).json({ error: 'Internal server error' });
         } else {
-            res.json(rows);
+            // Reverse the order of the rows
+            const reversedRows = rows.reverse();
+            res.json(reversedRows);
         }
     });
 });
+
 
 // Endpoint to delete chat history for a user
 app.delete('/chat-history', (req, res) => {

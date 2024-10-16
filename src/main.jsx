@@ -13,6 +13,7 @@ import ContactUs from './components/ContactUs/index.jsx';
 import OurServices from './components/OurServices/index.jsx';
 import PrivacyPolicy from './components/PrivacyPolicy/index.jsx';
 import API from './components/API/index.jsx';
+import Retinopathy from './components/Retinopathy/index.jsx';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: '/API',
     element: <API />
+  },
+  {
+    path: 'Retinopathy',
+    element: <Retinopathy />
   },
   // Catch-all route for undefined paths
   {

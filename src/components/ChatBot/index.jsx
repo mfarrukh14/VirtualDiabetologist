@@ -119,7 +119,7 @@ export default function Chatbot() {
         <>
             <Header isInverted={true} />
             <div className="font-sans text-white bg-gray-900 h-screen w-screen flex flex-col justify-between pt-16 mb-10">
-                <div className="overflow-y-auto flex-1 px-5 pb-16 chat-container" ref={chatContainerRef}>
+                <div className="overflow-y-auto flex-1 px-5 chat-container" ref={chatContainerRef}>
                     <div className="text-center mb-5 mt-60">
                         <h1 className="hlo-txt text-5xl font-thin bg-gradient-to-r from-blue-600 via-purple-500 to-red-400 inline-block text-transparent bg-clip-text">
                             Hello, {user.firstName}

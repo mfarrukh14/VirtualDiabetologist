@@ -132,7 +132,7 @@ const API = () => {
     return (
         <>
             <Header isInverted={true} />
-            <div className="container min-h-screen mx-auto pt-28 px-10 py-10 bg-gray-900 text-white">
+            <div className="container min-h-screen mx-auto pt-28 px-10 py-10 bg-slate-950 text-white">
                 <h1 className="text-3xl font-bold mb-6">API Keys</h1>
                 <button
                     onClick={() => setShowModal(true)}
