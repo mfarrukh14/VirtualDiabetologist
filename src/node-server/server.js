@@ -28,6 +28,21 @@ app.use(extractUserId);
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+// Route to handle incoming data from the React frontend
+app.post('/predict', async (req, res) => {
+    try {
+        // Send data to the Flask server
+        // console.log(req.body)
+        const response = await axios.post('http://127.0.0.1:5000/predict', req.body);
+        
+        // Return the response from Flask to the React frontend
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while processing your request.' });
+    }
+});
+
 app.post('/upload-image', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });

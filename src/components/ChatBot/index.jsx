@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import Header from '../Header/index';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import Font Awesome Icon
-import { faBroom } from '@fortawesome/free-solid-svg-icons'; // Import Broom Icon
+import { faTrash, faMagicWandSparkles, faInfoCircle } from '@fortawesome/free-solid-svg-icons'; // Import Broom Icon
 import './Chatbot.css';
+import loadingGif from '../../../public/chatLoading.gif';
 
 export default function Chatbot() {
     const [prompt, setPrompt] = useState('');
@@ -118,15 +120,26 @@ export default function Chatbot() {
     return (
         <>
             <Header isInverted={true} />
-            <div className="font-sans text-white bg-gray-900 h-screen w-screen flex flex-col justify-between pt-16 mb-10">
+            <div className="font-sans text-white bg-gray-900 h-screen w-screen flex flex-col justify-between pt-20 mb-10">
                 <div className="overflow-y-auto flex-1 px-5 chat-container" ref={chatContainerRef}>
-                    <div className="text-center mb-5 mt-60">
+                    <div className="text-center mb-5 mt-24">
                         <h1 className="hlo-txt text-5xl font-thin bg-gradient-to-r from-blue-600 via-purple-500 to-red-400 inline-block text-transparent bg-clip-text">
                             Hello, {user.firstName}
                         </h1>
                         <h1 className="afr-txt text-5xl font-thin bg-clip-text font-sans mt-4">
                             How can I help you today?
                         </h1>
+                    </div>
+                    <div className="info-box border border-gray-500 bg-transparent p-4 rounded-md flex items-start w-1/2 mx-auto mt-10 hover:scale-105 transition-transform duration-350 ease-in-out hover:bg-slate-800">
+                        <div className="icon mr-3">
+                            <FontAwesomeIcon icon={faInfoCircle} className="text-gray-500 h-6 w-6" />
+                        </div>
+                        <div className="content">
+                            <h2 className="text-lg font-semibold text-gray-300">Important Information</h2>
+                            <p className="text-sm text-gray-400 mt-1">
+                                This is some important information that you should be aware of. Please read it carefully.
+                            </p>
+                        </div>
                     </div>
                     <div className="chat-history w-full text-left">
                         {isLoading ? (
@@ -154,6 +167,15 @@ export default function Chatbot() {
                         )}
                     </div>
                 </div>
+                <div className='fixed bottom-24 right-0 mr-10'>
+                    <Link to={'/DiabetesPrediction'}>
+                    <button
+                        className='flex items-center justify-center w-12 h-12 bg-gradient-to-br from-sky-500 via-cyan-600 to-violet-600 rounded-full hover:scale-125 transition-transform duration-350 ease-in-out cursor-pointer'>
+                        <FontAwesomeIcon icon={faMagicWandSparkles} className="text-white" />
+                    </button>
+                    </Link>
+                </div>
+
                 <form onSubmit={handleSubmit} className="fixed bottom-0 w-full bg-gray-900 py-4">
                     <div className="relative w-4/5 mx-auto">
                         <input
@@ -165,28 +187,29 @@ export default function Chatbot() {
                             className="dark-input w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white pr-20 pl-12"
                             autoComplete="off"
                         />
-                        <button type="button" onClick={toggleModal} className="form-btn absolute right-12 top-1/2 transform -translate-y-1/2 text-xl">
-                            📜
+                        <button type="button" onClick={toggleModal} className="form-btn absolute right-12 top-1/2 transform -translate-y-1/2 text-xl animate-pulse hover:scale-150 transition-transform duration-300 ease-in-out">
+                            ❤️
                         </button>
                         <button
                             type="button"
                             onClick={handleDeleteChatHistory}
-                            className="form-btn absolute left-3 top-1/2 transform -translate-y-1/2 text-xl hover:text-blue-500"
+                            className="form-btn absolute left-3 top-1/2 transform -translate-y-1/2 text-xl text-red-600 hover:scale-150 transition-transform duration-300 ease-in-out"
                         >
-                            <FontAwesomeIcon icon={faBroom} />
+                            <FontAwesomeIcon icon={faTrash} />
                         </button>
                         {isSubmitting ? (
                             <div className="flex justify-center items-center absolute right-4 top-1/2 transform -translate-y-1/2 w-8 h-8">
-                                <div className="w-5 h-5 border-2 border-t-transparent border-purple-400 rounded-full animate-spin"></div>
+                                <img src={loadingGif} alt="Loading" className="w-8 h-8" />
                             </div>
                         ) : (
-                            <button type="submit" className="arrow-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-xl">
+                            <button
+                                type="submit"
+                                className="arrow-btn absolute right-4 top-1/2 transform -translate-y-1/2 text-xl hover:scale-150 transition-transform duration-300 ease-in-out">
                                 ➤
                             </button>
                         )}
                     </div>
                 </form>
-
                 {isModalOpen && (
                     <div className="modal fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="modal-content bg-gray-800 p-6 rounded-lg animate-glow">
@@ -278,7 +301,7 @@ export default function Chatbot() {
                         </div>
                     </div>
                 )}
-            </div>
+            </div >
         </>
     );
 }

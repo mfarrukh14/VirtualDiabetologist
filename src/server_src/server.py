@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from langchain_ollama.llms import OllamaLLM
 from langchain_chroma import Chroma
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import OllamaEmbeddings
@@ -12,21 +11,18 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.document_loaders import UnstructuredPDFLoader
 from dotenv import load_dotenv
-import time
 import torch
 from PIL import Image
-import seaborn as sns
+import pandas as pd
 import numpy as np
-sns.set(style='darkgrid')
 import torchvision.transforms as transforms  
 import torch.nn as nn 
 import torch.nn.functional as F
-import warnings
 import base64
 from io import BytesIO
-import cv2  # Import OpenCV
-import matplotlib.pyplot as plt
-warnings.filterwarnings('ignore')
+import pickle
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.decomposition import PCA
 
 load_dotenv()
 
@@ -36,7 +32,7 @@ CORS(app)
 groq_api_key = os.getenv('GROQ_API')
 
 llm = ChatGroq(groq_api_key=groq_api_key, 
-                model_name="Llama3-8b-8192", 
+                model_name="llama3-8b-8192", 
                 temperature=0.5, 
                 verbose=True, n=1, 
                 max_retries=2)
@@ -216,6 +212,58 @@ peft_config_dict = {
 }
 
 
+# Load the model and data preprocessing components
+with open('C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//src//server_src//Diabetes_model.pkl', 'rb') as file:
+    d_model = pickle.load(file)
+
+# Load and prepare the dataset for label encoding and scaling
+df = pd.read_csv("C:/Users/hp/Desktop/MyArchive/Code/Virtual_Diabetalogist/dataset/diabetes_prediction_dataset.csv")
+label_encoder_gender = LabelEncoder()
+label_encoder_smoking = LabelEncoder()
+
+# Encode the training data
+df['gender'] = label_encoder_gender.fit_transform(df['gender'])
+df['smoking_history'] = label_encoder_smoking.fit_transform(df['smoking_history'])
+
+# Prepare the StandardScaler and PCA
+scaler = StandardScaler()
+pca = PCA()
+
+# Fit the scaler and PCA
+X_train = df[['gender', 'age', 'hypertension', 'heart_disease', 'smoking_history', 'bmi', 'HbA1c_level', 'blood_glucose_level']]
+scaler.fit(X_train)
+X_scaled = scaler.transform(X_train)
+pca.fit(X_scaled)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Get JSON data from the request
+    data = request.get_json()
+    
+    # Prepare the input DataFrame
+    custom_df = pd.DataFrame([data])
+    
+    # Encode the 'gender' and 'smoking_history' columns
+    custom_df['gender'] = label_encoder_gender.transform([custom_df['gender'][0]])
+    custom_df['smoking_history'] = label_encoder_smoking.transform([custom_df['smoking_history'][0]])
+
+    # Standardize the custom data
+    custom_X = scaler.transform(custom_df[['gender', 'age', 'hypertension', 'heart_disease', 'smoking_history', 'bmi', 'HbA1c_level', 'blood_glucose_level']])
+    
+    # Apply PCA transformation
+    custom_X_pca = pca.transform(custom_X)
+
+    # Make predictions using the trained model
+    custom_predictions = d_model.predict(custom_X_pca)
+
+    # Prepare the response
+    response = {
+        'predictions': [
+            'not predicted to have diabetes' if pred == 0 else 'predicted to have diabetes' for pred in custom_predictions
+        ]
+    }
+    
+    return jsonify(response)
 
 
 

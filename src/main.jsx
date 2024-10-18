@@ -14,6 +14,7 @@ import OurServices from './components/OurServices/index.jsx';
 import PrivacyPolicy from './components/PrivacyPolicy/index.jsx';
 import API from './components/API/index.jsx';
 import Retinopathy from './components/Retinopathy/index.jsx';
+import DiabetesPredictor from './components/DiabetesPredictor/index.jsx';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -55,8 +56,12 @@ const router = createBrowserRouter([
     element: <API />
   },
   {
-    path: 'Retinopathy',
+    path: '/Retinopathy',
     element: <Retinopathy />
+  },
+  {
+    path: '/DiabetesPrediction',
+    element: <DiabetesPredictor />
   },
   // Catch-all route for undefined paths
   {
