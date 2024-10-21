@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
 import os
 from langchain_chroma import Chroma
@@ -23,6 +23,9 @@ from io import BytesIO
 import pickle
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
+from fpdf import FPDF 
+import io
+import re
 
 load_dotenv()
 
@@ -217,7 +220,7 @@ with open('C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//src//
     d_model = pickle.load(file)
 
 # Load and prepare the dataset for label encoding and scaling
-df = pd.read_csv("C:/Users/hp/Desktop/MyArchive/Code/Virtual_Diabetalogist/dataset/diabetes_prediction_dataset.csv")
+df = pd.read_csv("C:/Users/hp/Desktop/MyArchive/Code/Virtual_Diabetalogist/dataset/diabetes_prediction/diabetes_prediction_dataset.csv")
 label_encoder_gender = LabelEncoder()
 label_encoder_smoking = LabelEncoder()
 
@@ -265,6 +268,103 @@ def predict():
     
     return jsonify(response)
 
+class PDF(FPDF):
+    def header(self):
+            # Set the position for the logo
+            self.set_y(10)  # Set y position
+            self.set_x(10)  # Set x position
+
+            # Add company logo (with a reduced size)
+            self.image('C:/Users/hp/Desktop/MyArchive/Code/Virtual_Diabetalogist/public/logo.png', x=10, y=8, w=14)  # Adjust size as needed
+
+            # Move to the right to position the heading next to the logo
+            self.set_x(30)  # Adjust x position based on the logo's width
+
+            # Add the heading next to the logo
+            self.set_font('Arial', 'B', 12)
+            self.cell(0, 10, 'Virtual Diabetologist', ln=False, align='L')  # 'ln=False' keeps it on the same line
+
+            # Add margin below the header (move the cursor to the next line)
+            self.ln(20)  # Adjust to add space after the header (increase value for more margin)
+
+    def footer(self):
+        self.set_y(-15)  # Position at 1.5 cm from bottom
+        self.set_font('Arial', 'I', 8)
+        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
+
+
+# Endpoint to handle chat history summarization and generate PDF
+@app.route('/chat-summary', methods=['POST'])
+def chat_summary():
+    data = request.get_json()
+    chat_history = data.get('chat_history')
+
+    if not chat_history:
+        return jsonify({'error': 'No chat history provided'}), 400
+
+    # Summarize the chat history using the LLM
+    try:
+        # Format the prompt for the LLM to summarize the chat history
+        summary_prompt = f"Summarize the following chat history into a concise medical report for diabetes patients and at the top give the heading of 'AI DIAGNOSIS REPORT':\n\n{chat_history}"
+        llm_response = llm.invoke(summary_prompt)
+        summary_text = llm_response.content  # LLM generated summary
+    except Exception as e:
+        print(f"Error during LLM invocation: {e}")
+        return jsonify({'error': 'Error summarizing chat history'}), 500
+
+    # Generate a PDF from the summary
+    pdf = PDF()
+    pdf.add_page()
+
+
+    # Process summary_text to identify and format headings
+    lines = summary_text.split('\n')
+    patient_data = []
+
+    for line in lines:
+        # Check for bold headings
+        if line.startswith("**") and line.endswith("**"):
+            heading = line[2:-2]  # Extract heading text without the **
+            pdf.set_font('Arial', 'B', 16)  # Set font for headings
+            pdf.cell(0, 10, heading, ln=True)  # Add heading to PDF
+            pdf.set_font('Arial', '', 12)  # Reset to normal font
+        # Check for patient data marked with a single star
+        elif line.startswith('*') and line.endswith('*'):
+            content = line[1:-1].strip()  # Extract content without the *
+            patient_data.append(content)  # Add the content to patient_data list
+        else:
+            pdf.set_font('Arial', '', 12)  # Ensure normal font for regular text
+            pdf.multi_cell(0, 10, line)  # Add normal text to PDF
+
+    # Prepare patient information in pairs
+    if patient_data:
+        # Assuming the patient data is in pairs, e.g., ["Name", "John Doe", "Age", "45"]
+        patient_info_pairs = [(patient_data[i], patient_data[i + 1]) for i in range(0, len(patient_data), 2)]
+
+        # Add a table for patient information (sample structure)
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, 'Patient Information', ln=True)  # Section title
+        pdf.set_font('Arial', '', 12)
+
+        # Draw the table
+        pdf.set_fill_color(200, 220, 255)  # Light blue fill color
+        for key, value in patient_info_pairs:
+            pdf.cell(90, 10, key, border=1, fill=True)  # Key (e.g., "Name")
+            pdf.cell(90, 10, value, border=1, fill=True)  # Value (e.g., "John Doe")
+            pdf.ln()  # Move to next line
+
+    # Save the PDF to a BytesIO stream
+    pdf_output = io.BytesIO()
+    pdf_bytes = pdf.output(dest='S').encode('latin1')  # Encode to bytes
+    pdf_output.write(pdf_bytes)  # Write PDF bytes to the BytesIO stream
+    pdf_output.seek(0)  # Move the pointer to the start of the stream
+
+    # Manually create a response and set the headers
+    response = make_response(pdf_output.read())
+    response.headers.set('Content-Type', 'application/pdf')
+    response.headers.set('Content-Disposition', 'attachment', filename='chat_summary.pdf')
+
+    return response
 
 
 def vector_embedding():
@@ -277,7 +377,7 @@ def vector_embedding():
 
     embeddings = OllamaEmbeddings(model="nomic-embed-text", show_progress=True)
     
-    file_path = "C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//dataset//f_dataset.pdf"
+    file_path = "C://Users//hp//Desktop//MyArchive//Code//Virtual_Diabetalogist//dataset//merged.pdf"
     loader = UnstructuredPDFLoader(file_path)
     
     if not os.path.exists(file_path):

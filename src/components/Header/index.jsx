@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UserButton, useUser } from '@clerk/clerk-react';
-import { FaUser, FaTimes, FaServicestack, FaInfoCircle, FaEnvelope, FaCode, FaEye } from 'react-icons/fa'; // Import the required icons
+import { FaUser, FaTimes, FaServicestack, FaInfoCircle, FaEnvelope, FaCode, FaEye, FaFileDownload } from 'react-icons/fa'; // Import the required icons
 import './Header.css';
 import logo from '../../../public/logo.svg'; // Import the logo image
 
@@ -29,6 +29,7 @@ function Header({ isInverted }) {
         { path: '/ContactUs', label: 'Contact Us', icon: <FaEnvelope /> },
         { path: '/API', label: 'API', icon: <FaCode /> },
         { path: '/Retinopathy', label: 'Retinopathy', icon: <FaEye /> },
+        { path: '/Summary', label: 'Summary', icon: <FaFileDownload />}
     ];
 
     return (
@@ -47,7 +48,7 @@ function Header({ isInverted }) {
             </div>
 
             {/* Main header buttons (visible in desktop view) */}
-            <div className="hidden md:flex flex-col md:flex-row md:gap-12">
+            <div className="hidden md:flex flex-col md:flex-row md:gap-10">
                 {menuItems.map(({ path, label, icon }, index) => (
                     <Link to={path} key={index}>
                         <button className="text-gray-400 hover:text-white font-bold transition-transform duration-300 hover:scale-110 flex items-center space-x-2">

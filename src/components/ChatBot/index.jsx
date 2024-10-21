@@ -40,7 +40,9 @@ export default function Chatbot() {
     const handleFormSubmit = async () => {
         const res = await fetch('http://127.0.0.1:3000/update-context', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json',
+                        'user-id': user.id,
+             },
             body: JSON.stringify(formData)
         });
 
@@ -75,22 +77,32 @@ export default function Chatbot() {
     useEffect(() => {
         const fetchChatHistory = async () => {
             setIsLoading(true);
-            const res = await fetch(`http://127.0.0.1:3000/chat-history`, {
-                method: 'GET',
-                headers: { 'user-id': user.id }
-            });
-            const data = await res.json();
-            setIsLoading(false);
-
-            if (res.ok && data.length > 0) {
-                setChatHistory(data);
+            try {
+                const res = await fetch(`http://127.0.0.1:3000/chat-history`, {
+                    method: 'GET',
+                    headers: { 'user-id': user.id }
+                });
+                const data = await res.json();
+    
+                if (res.ok && data.length > 0) {
+                    setChatHistory(data);
+                } else {
+                    // Handle the case where response is not ok or data is empty
+                    console.error('Failed to fetch chat history:', data);
+                }
+            } catch (error) {
+                console.error('Error fetching chat history:', error);
+            } finally {
+                setIsLoading(false); // Ensure loading state is reset in all cases
             }
         };
-
+    
         if (isLoaded && user && chatHistory.length === 0) {
             fetchChatHistory();
         }
+    
     }, [isLoaded, user, chatHistory.length]);
+    
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -135,9 +147,9 @@ export default function Chatbot() {
                             <FontAwesomeIcon icon={faInfoCircle} className="text-gray-500 h-6 w-6" />
                         </div>
                         <div className="content">
-                            <h2 className="text-lg font-semibold text-gray-300">Important Information</h2>
+                            <h2 className="text-lg font-semibold text-gray-300">Important</h2>
                             <p className="text-sm text-gray-400 mt-1">
-                                This is some important information that you should be aware of. Please read it carefully.
+                                Diabetes affects more than 40% of the individuals worldwide, with many not knowing if they are even a victim, <a href="/DiabetesPrediction" className='underline cursor-pointer'>click here</a> to try our cutting edge detection system to see if you have diabetes.
                             </p>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ import visionLogo from '../../../public/retina.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileUpload, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import loadingGif from '../../../public/mesh2.gif'; // Import your loading GIF
+import { useUser } from '@clerk/clerk-react';
 
 const VisionHeader = () => (
   <div className="text-left mb-6 ml-4">
@@ -26,7 +27,8 @@ const Retinopathy = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [showGif, setShowGif] = useState(false); // State to control GIF visibility
+  const [showGif, setShowGif] = useState(false);
+  const {user} = useUser();
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -38,7 +40,7 @@ const Retinopathy = () => {
       alert('Please select an image.');
       return;
     }
-
+    const userIdString = String(user.id);
     const formData = new FormData();
     formData.append('image', selectedFile);
 
@@ -47,7 +49,10 @@ const Retinopathy = () => {
       setShowGif(true); // Show the GIF immediately
 
       const response = await axios.post('http://localhost:3000/upload-image', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'user-id': userIdString,
+      }      
       });
 
       // Use setTimeout to add a 2-second delay before setting the result
